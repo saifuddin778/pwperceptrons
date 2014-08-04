@@ -1,4 +1,4 @@
-from pwneurons import pwneurons
+from pwperceptrons import pwperceptrons
 
 
 def insert_(item, val):
@@ -7,10 +7,9 @@ def insert_(item, val):
 
 """Basic Test"""
 def test_():
-    from datasets import load_seeds
-    x, y = load_seeds()
+    from datasets import load_yeast
+    x, y = load_yeast()
     data = map(lambda n:insert_(n[0],n[1]), zip(x,y))
-    pw = pwneurons(data)
+    pw = pwperceptrons(data, numeric_labels=False)
 
 test_()
-    
