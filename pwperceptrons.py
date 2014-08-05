@@ -1,10 +1,11 @@
 from __future__ import division
 import sys
+sys.dont_write_bytecode = True
 import math
 import random
 from annsp import annsp
-from types import FloatType, IntType
-from functions import Functions
+from tools import Functions
+from QDA import QDA
 
 funcs_ = Functions()
 
@@ -74,7 +75,7 @@ class pwperceptrons(object):
     def get_pair(self, pair_labels):
         set_data = []
         set_labels = []
-        self.classifiers[pair_labels] = {}
+        #self.classifiers[pair_labels] = {}
         for i, j in enumerate(self.training_data):
             if self.labels[i] in pair_labels:
                 set_data.append(self.training_data[i])
@@ -94,7 +95,8 @@ class pwperceptrons(object):
         
     """trains a neuron for the given data"""
     def process(self, set_data, set_labels, pair_label):
-        self.classifiers[pair_label]['predictor'] = annsp(set_data, set_labels)
+        #self.classifiers[pair_label]['predictor'] = annsp(set_data, set_labels)
+        self.classifiers[pair_label] = annsp(set_data, set_labels)
 
     def get_max(self, list_):
         h = {}
@@ -124,7 +126,8 @@ class pwperceptrons(object):
             for i, a in enumerate(v):
                 v[i] = (v[i] - self.dmean_[i])/self.std_[i]
         for a in self.classifiers:
-            classification = self.classifiers[a]['predictor'].classify(v)
+            #classification = self.classifiers[a]['predictor'].classify(v)
+            classification = self.classifiers[a].classify(v)
             results.append(classification)
         if not test_:
             return self.get_max(results)
