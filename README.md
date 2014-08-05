@@ -1,6 +1,6 @@
 pwperceptrons
 =============
-Pairwise coupling of multiple perceptrons to form a rich multilabel classifier.
+Pairwise coupling of multiple perceptrons to form a rich multi-label prediction model.
 
 Based on the works done by [Chen et, al.](http://www.contrib.andrew.cmu.edu/~fchen1/On_Locally_Linear_Classification_by_Pairwise_Coupling.pdf) and [Mencia & Furnkranz](https://www.ke.tu-darmstadt.de/~juffi/publications/ijcnn-08.pdf), this is a naive implementation of pairwise coupling of perceptrons, which are interlinked for the purpose of classification of multi-label datasets.
 
