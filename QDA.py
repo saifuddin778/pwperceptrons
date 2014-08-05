@@ -100,9 +100,3 @@ class QDA(object):
             return max(predictions, key=predictions.get)
         else:
             return predictions
-    
-
-    
-
-
-    
