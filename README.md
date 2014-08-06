@@ -4,6 +4,11 @@ Pairwise coupling of multiple perceptrons to form a rich multi-label prediction 
 
 Based on the works done by [Chen et, al.](http://www.contrib.andrew.cmu.edu/~fchen1/On_Locally_Linear_Classification_by_Pairwise_Coupling.pdf) and [Mencia & Furnkranz](https://www.ke.tu-darmstadt.de/~juffi/publications/ijcnn-08.pdf), this is a naive implementation of pairwise coupling of perceptrons, which are interlinked for the purpose of classification of multi-label datasets.
 
+There are two main methods existing for now:
+
+* A classifier can be generated using simply the pairwise coupling alone i.e. training `N(N-1)/2` number of cassifiers (where `N` is the number of classes involved) to do the prediction, where the result is selected using the voting system.
+* A classifier that utilizes a [QDA](https://onlinecourses.science.psu.edu/stat557/node/43) predictor layer at the top can be added within the scenario, which basically gives the top two possible classes `(ci, cj)` for the given input, and then utilizes the exact classifier trained on the particular couple to do the prediction. In this way, not only the complexity is reduced but the overall precision is increased as well. However, this particular method do require that almost equal number of instances are provided for each class during the training.
+
 ####Usage:
 To use the pairwise coupling of perceptrons alone:
 ```python
