@@ -1,11 +1,13 @@
 from __future__ import division
 import sys
-sys.dont_write_bytecode = True
 import math
 import random
+import copy
 from annsp import annsp
 from tools import Functions
 from QDA import QDA
+
+from compiler.ast import flatten
 
 funcs_ = Functions()
 
@@ -17,7 +19,7 @@ class pwperceptrons(object):
         if self.verify_dimensions(data):
             self.post_train_test = post_train_test
             self.classifiers = {}
-            random.shuffle(data)
+            #random.shuffle(data)
             self.all_data = [a[:-1] for a in data]
             self.all_labels = [a[-1] for a in data]
             self.dmean_ = funcs_.mean_nm(self.all_data, axis=0)
@@ -125,11 +127,71 @@ class pwperceptrons(object):
         if not test_:
             for i, a in enumerate(v):
                 v[i] = (v[i] - self.dmean_[i])/self.std_[i]
+        
         for a in self.classifiers:
-            #classification = self.classifiers[a]['predictor'].classify(v)
             classification = self.classifiers[a].classify(v)
             results.append(classification)
         if not test_:
             return self.get_max(results)
         else:
             return results
+
+"""
+Mixing the QDA method with coupled classifiers.
+This way we don't have to consult N(N-1)/2 classifiers for every prediction,
+but only have to consult a single classifier, which is trained on the couple of
+first and second top classification returned from the QDA model trained over the
+dataset.
+"""
+class qda_pwperceptrons(object):
+    def __init__(self, data):
+        self.qda_data = self.preprocess(copy.deepcopy(data))
+        self.data = data
+        self.generate_qda()
+        self.generate_couples()
+    
+    def preprocess(self, data):
+        all_data = [a[:-1] for a in data]
+        self.dmean_ = funcs_.mean_nm(all_data, axis=0)
+        self.std_ = funcs_.std_nm(all_data, axis=0)
+        all_data = funcs_.normalize_(all_data)
+        for i in range(0, len(all_data)):
+            all_data[i].append(data[i][-1])
+        return all_data
+
+    def generate_qda(self):
+        x = [a[:-1] for a in self.qda_data]
+        y = [a[-1] for a in self.qda_data]
+        self.qda = QDA(x,y)
+
+    def standardize(self, v):
+        g = []
+        for i, a in enumerate(v):
+                g.append((v[i] - self.dmean_[i])/self.std_[i])
+        return g
+
+    def generate_couples(self):
+        self.model = pwperceptrons(self.data, numeric_labels=False, post_train_test=False)
+        self.h = {}
+        for i, j in self.model.classifiers.iteritems():
+            for b in i:
+                if self.h.has_key(b):
+                    self.h[b].append(i)
+                else:
+                    self.h[b] = []
+                    self.h[b].append(i)
+    
+    def get_two_max(self, dict_):
+        first = max(dict_, key=dict_.get)
+        dict_.pop(first, None)
+        second = max(dict_, key=dict_.get)
+        return first, second
+
+    def predict(self, v):
+        standardized = self.standardize(v)
+        first, second = self.get_two_max(self.qda.predict(standardized, key_only=False))
+        for i,j in self.model.classifiers.iteritems():
+            if sorted(i) == sorted((first, second)):
+                classifier = tuple(sorted(i))
+                break
+        return self.model.classifiers[classifier].classify(self.standardize(v))
